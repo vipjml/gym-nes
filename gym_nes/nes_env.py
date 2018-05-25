@@ -166,10 +166,8 @@ class NESEnv(gym.Env):
 
         # unwrap the P value representing a frame from the data
         pvs = np.array(struct.unpack('B'*len(screen), screen))
-        # use the palette to convert the p values to RGB
-        rgb = np.array(PALETTE[pvs-20], dtype=np.uint8)
         # reshape the screen and assign it to self
-        screen = rgb.reshape((SCREEN_HEIGHT, SCREEN_WIDTH, 3))
+        screen = pvs.reshape((SCREEN_HEIGHT, SCREEN_WIDTH))
 
         return screen, reward, done
 
@@ -262,7 +260,7 @@ class NESEnv(gym.Env):
         if mode == 'human':
             if self.viewer is None:
                 self.viewer = SimpleImageViewer()
-            self.viewer.imshow(self.screen)
+            self.viewer.imshow(np.array(PALETTE[self.screen-20], dtype=np.uint8))
         elif mode == 'rgb_array':
             return self.screen
 
