@@ -90,6 +90,7 @@ class NESEnv(gym.Env):
             'ULB', 'DLB', 'URB', 'DRB',
             'UAB', 'DAB', 'LAB', 'RAB',
             'ULAB', 'DLAB', 'URAB', 'DRAB',
+            ''
         ]
         self.action_space = gym.spaces.Discrete(len(self.actions))
 
