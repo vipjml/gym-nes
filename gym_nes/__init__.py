@@ -4,7 +4,7 @@ import gym
 from .smb_env import SuperMarioBrosEnv
 
 gym.envs.registration.register(
-    id='SuperMarioBros-v0',
+    id='NesSuperMarioBros-v0',
     entry_point='gym_nes:SuperMarioBrosEnv',
     kwargs={
         'max_episode_steps': math.inf,
