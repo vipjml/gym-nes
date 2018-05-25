@@ -11,7 +11,7 @@ class SuperMarioBrosEnv(NESEnv):
         Initialize a new Super Mario Bros environment.
 
         Args:
-            downsampled_rom: whether to use the downsampled ROM
+
 
         Returns:
             None
@@ -24,10 +24,8 @@ class SuperMarioBrosEnv(NESEnv):
         lua_name = 'lua/super-mario-bros.lua'
         self.lua_interface_path = os.path.join(package_directory, lua_name)
         # setup the path to the game ROM
-        if downsampled_rom:
-            rom_name = 'roms/super-mario-bros-downsampled.nes'
-        else:
-            rom_name = 'roms/super-mario-bros.nes'
+
+        rom_name = 'roms/super-mario-bros.nes'
         self.rom_file_path = os.path.join(package_directory, rom_name)
         # setup the discrete action space for the agent
         self.actions = [
