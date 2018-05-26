@@ -26,6 +26,9 @@ local COMMAND_TABLE = {
 local function nes_reset()
   -- load state so we don't have to instruct to skip title screen
   savestate.load(gamestate)
+  if nes_callback.after_reset ~= nil then
+    nes_callback.after_reset();
+  end
 end
 
 -- split - Splits a string with a specific delimiter
@@ -184,14 +187,10 @@ function nes_loop()
 	if nes_callback.after_process_command ~= nil then
 	  nes_callback.after_process_command()
 	end
-	local reward = 0
-    for frame_i=1,100 do
-      emu.frameadvance()
-    end
 	local isdone = false
     nes_send_state(reward,isdone)
   end
 end
 
 nes_callback = {before_process_command = nil,after_process_command = nil, 
-get_reward = nil}
+get_reward = nil, after_reset = nil}
