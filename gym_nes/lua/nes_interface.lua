@@ -8,6 +8,8 @@ local flag_reset = false -- indicates whether a reset is happening
 
 local SEP = string.format('%c', 0xFF) -- as separator in communication protocol
 local IN_SEP = '|'
+local state = nil
+local reward = 0
 
 local COMMAND_TABLE = {
   A = "A",
@@ -115,10 +117,18 @@ local function nes_send_state(reward, done)
   write_to_pipe_end()
 end
 
+local function show_joypad_command(joypad_command)
+  local button_text_y = 25;
+  for k,v in pairs(joypad_command) do
+    gui.text(5,button_text_y, k)
+    button_text_y = button_text_y + 10
+   end
+end
+
 --- private functions
 -- handle one command
 local function nes_handle_command()
-  line = pipe_in:read()
+  local line = pipe_in:read()
   local body = split(line, IN_SEP)
   local command = body[1]
   if command == 'reset' then
@@ -127,15 +137,20 @@ local function nes_handle_command()
     -- joypad command
     local buttons = body[2]
     local joypad_command = {}
-    local button_text_y = 25;
     for i = 1, #buttons do
       local btn = buttons:sub(i,i)
       local button = COMMAND_TABLE[buttons:sub(i,i)]
       joypad_command[button] = true
-      gui.text(5,button_text_y, button)
-      button_text_y = button_text_y + 10
     end
-    joypad.set(1, joypad_command)
+	reward = 0
+	for frame_i=1,frame_skip do
+      show_joypad_command(joypad_command)
+	  joypad.set(1, joypad_command)
+      emu.frameadvance()
+	  if nes_callback.get_reward ~= nil then
+		reward = reward + nes_callback.get_reward();
+	  end
+    end
   end
 end
 
@@ -170,12 +185,15 @@ function nes_loop()
 	if nes_callback.after_process_command ~= nil then
 	  nes_callback.after_process_command()
 	end
-    for frame_i=1,frame_skip do
+	local reward = 0
+    for frame_i=1,100 do
       emu.frameadvance()
     end
-    nes_send_state(2,false)
+	local isdone = false
+    nes_send_state(reward,isdone)
   end
 end
 
-nes_callback = {before_process_command = nil,after_process_command = nil}
+nes_callback = {before_process_command = nil,after_process_command = nil, 
+get_reward = nil}
 nes_init()

@@ -8,7 +8,7 @@ gym.envs.registration.register(
     entry_point='gym_nes:SuperMarioBrosEnv',
     kwargs={
         'max_episode_steps': math.inf,
-        'frame_skip': 1
+        'frame_skip': 4
     },
     nondeterministic=True,
 )
