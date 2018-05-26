@@ -95,6 +95,8 @@ class NESEnv(gym.Env):
             ''
         ]
         self.action_space = gym.spaces.Discrete(len(self.actions))
+        package_directory = os.path.dirname(os.path.abspath(__file__))
+        self.nes_interface_path = os.path.join(package_directory, 'lua/nes_interface.lua')
 
     # MARK: FCEUX
 
@@ -110,6 +112,7 @@ class NESEnv(gym.Env):
         os.environ['pipe_in_name'] = str(self._pipe_in_name)
         os.environ['pipe_out_name'] = str(self._pipe_out_name)
         os.environ['disable_user_input'] = '1' if self.disable_user_input else '0'
+        os.environ['nes_interface_path'] = self.nes_interface_path
         # TODO: define and setup different reward schemes to initialize with
         # and activate them here using the environment key 'reward_scheme'
 
