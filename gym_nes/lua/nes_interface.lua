@@ -4,11 +4,10 @@ local pipe_out_name = nil
 local pipe_out = nil -- for sending data(output e.g. screen pixels, reward) back to client
 local pipe_in_name = nil
 local pipe_in = nil -- for getting data(input e.g. controller status change) from client
-local flag_reset = false -- indicates whether a reset is happening
 
 local SEP = string.format('%c', 0xFF) -- as separator in communication protocol
 local IN_SEP = '|'
-local state = nil
+gamestate = savestate.object()
 local reward = 0
 
 local COMMAND_TABLE = {
@@ -25,10 +24,8 @@ local COMMAND_TABLE = {
 -- exported common functions start with nes_ prefix
 -- called before each episode
 local function nes_reset()
-  flag_reset = true
   -- load state so we don't have to instruct to skip title screen
-  state = savestate.object(10)
-  savestate.load(state)
+  savestate.load(gamestate)
 end
 
 -- split - Splits a string with a specific delimiter
@@ -87,6 +84,7 @@ local function nes_init()
   pipe_in, _, _ = io.open(pipe_in_name, "r")
 
   write_to_pipe("ready" .. SEP .. emu.framecount())
+  savestate.save(gamestate)
 end
 
 local function nes_send_state(reward, done)
@@ -177,6 +175,7 @@ function nes_readbyterange(address, length)
 end
 
 function nes_loop()
+  nes_init()
   while true do
     if nes_callback.before_process_command ~= nil then
 	  nes_callback.before_process_command()
@@ -196,4 +195,3 @@ end
 
 nes_callback = {before_process_command = nil,after_process_command = nil, 
 get_reward = nil}
-nes_init()
