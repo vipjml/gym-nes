@@ -38,6 +38,7 @@ class NESEnv(gym.Env):
         frame_skip: int=4,
         fceux_args: tuple=('--nogui', '--sound 0'),
         random_seed: int=0,
+        disable_user_input : bool = True
     ) -> None:
         """
         Initialize a new NES environment.
@@ -61,6 +62,7 @@ class NESEnv(gym.Env):
         self.frame_skip = frame_skip
         self.fceux_args = fceux_args
         self.curr_seed = random_seed
+        self.disable_user_input = disable_user_input
         # setup the frame rate based on the frame skip rate
         self.metadata['video.frames_per_second'] = 60 / self.frame_skip
         self.viewer = None
@@ -107,6 +109,7 @@ class NESEnv(gym.Env):
         os.environ['frame_skip'] = str(self.frame_skip)
         os.environ['pipe_in_name'] = str(self._pipe_in_name)
         os.environ['pipe_out_name'] = str(self._pipe_out_name)
+        os.environ['disable_user_input'] = '1' if self.disable_user_input else '0'
         # TODO: define and setup different reward schemes to initialize with
         # and activate them here using the environment key 'reward_scheme'
 

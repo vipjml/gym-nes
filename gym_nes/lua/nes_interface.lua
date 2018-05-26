@@ -9,6 +9,7 @@ local SEP = string.format('%c', 0xFF) -- as separator in communication protocol
 local IN_SEP = '|'
 gamestate = savestate.object()
 local reward = 0
+local disable_user_input = true
 
 local COMMAND_TABLE = {
   A = "A",
@@ -78,6 +79,7 @@ local function nes_init()
     end
   end
 
+  disable_user_input = tonumber(os.getenv('disable_user_input')) > 0
   frame_skip = tonumber(os.getenv("frame_skip"))
   pipe_in_name = os.getenv("pipe_out_name")
   pipe_out_name = os.getenv("pipe_in_name")
@@ -118,14 +120,6 @@ local function nes_send_state(reward, done)
   write_to_pipe_end()
 end
 
-local function show_joypad_command(joypad_command)
-  local button_text_y = 25;
-  for k,v in pairs(joypad_command) do
-    gui.text(5,button_text_y, k)
-    button_text_y = button_text_y + 10
-   end
-end
-
 --- private functions
 -- handle one command
 local function nes_handle_command()
@@ -138,6 +132,13 @@ local function nes_handle_command()
     -- joypad command
     local buttons = body[2]
     local joypad_command = {}
+	for k,v in pairs(COMMAND_TABLE) do
+	  if disable_user_input then
+	    joypad_command[v] = false
+	  else
+	    joypad_command[v] = nil
+	  end
+	end
     for i = 1, #buttons do
       local btn = buttons:sub(i,i)
       local button = COMMAND_TABLE[buttons:sub(i,i)]
@@ -145,7 +146,7 @@ local function nes_handle_command()
     end
 	reward = 0
 	for frame_i=1,frame_skip do
-      show_joypad_command(joypad_command)
+	  gui.text(5,25, buttons)
 	  joypad.set(1, joypad_command)
       emu.frameadvance()
 	  if nes_callback.get_reward ~= nil then
